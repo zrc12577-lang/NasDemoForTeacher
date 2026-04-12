@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NAS Demo</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="brand">NAS Demo</div>
+      <div class="right">
+        <span id="who"></span>
+        <button id="logoutBtn" class="btn secondary hidden">退出</button>
+      </div>
+    </header>
+
+    <main>
+      <section id="loginCard" class="card">
+        <h2>登录</h2>
+        <div id="pickStep">
+          <div class="hint">先选择账号，再在下一步输入该账号的密码。</div>
+          <div id="userList" class="user-chips"></div>
+        </div>
+        <div id="passwordStep" class="hidden">
+          <div class="row">
+            <label>当前账号</label>
+            <div id="pickedUser" class="mono picked-user"></div>
+          </div>
+          <div class="row">
+            <button type="button" id="backPickBtn" class="btn secondary">重新选择账号</button>
+          </div>
+          <div class="row">
+            <label>密码</label>
+            <input id="password" type="password" placeholder="输入密码" autocomplete="current-password" />
+          </div>
+          <div class="row">
+            <button type="button" id="loginBtn" class="btn primary">验证并登录</button>
+          </div>
+        </div>
+        <div id="loginErr" class="error hidden"></div>
+        <div class="hint">
+          默认管理员 root，初始密码 0123/。登录后可在 Root 面板创建普通用户（无自助注册）。
+        </div>
+      </section>
+
+      <section id="app" class="hidden">
+        <section id="summary" class="card">
+          <div class="grid">
+            <div>
+              <div class="k">已用</div>
+              <div class="v" id="used"></div>
+            </div>
+            <div>
+              <div class="k">配额</div>
+              <div class="v" id="quota"></div>
+            </div>
+            <div>
+              <div class="k">角色</div>
+              <div class="v" id="role"></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="adminPanel" class="card hidden">
+          <h2>Root 面板</h2>
+          <div class="split">
+            <div>
+              <h3>存储设置</h3>
+              <p class="hint block-hint">
+                <strong>本机当服务器、自己的硬盘当网盘：</strong>NasDemo 跑在哪台电脑，「存储目录」就要填<strong>那台电脑</strong>上的文件夹绝对路径（如 <span class="mono">E:\NAS\storage</span>）。
+                请先在资源管理器里建好空文件夹，再把路径粘贴到这里并保存；所有用户文件会落在该目录下的 <span class="mono">users\用户名\</span>。
+                局域网内其它设备用浏览器访问 <span class="mono">http://这台电脑的IP:18080</span> 即可（本机已监听 0.0.0.0）。
+              </p>
+              <div class="row">
+                <label>存储目录</label>
+                <input id="baseDir" placeholder="本机绝对路径，例如 E:\NAS\storage" />
+              </div>
+              <div class="row">
+                <label>总配额(GB)</label>
+                <input id="totalGb" type="number" min="1" step="1" />
+              </div>
+              <div class="row">
+                <label>默认用户配额(GB)</label>
+                <input id="defaultUserGb" type="number" min="1" step="1" />
+              </div>
+              <div class="row">
+                <label>默认上传子目录</label>
+                <input id="defaultUploadRel" placeholder="相对各用户网盘根，如 inbox 或 backup/2024，可留空" />
+              </div>
+              <button id="saveSettingsBtn" class="btn primary">保存设置</button>
+              <div id="settingsMsg" class="hint"></div>
+            </div>
+
+            <div>
+              <h3>用户管理</h3>
+              <div class="row">
+                <label>新用户账号</label>
+                <input id="newU" placeholder="例如 alice" />
+              </div>
+              <div class="row">
+                <label>新用户密码</label>
+                <input id="newP" type="password" placeholder="例如 123456" />
+              </div>
+              <div class="row">
+                <label>配额(GB，可空=默认)</label>
+                <input id="newQ" type="number" min="1" step="1" placeholder="1" />
+              </div>
+              <button id="createUserBtn" class="btn primary">创建用户</button>
+              <div class="spacer"></div>
+              <h3>批量创建用户</h3>
+              <div class="row">
+                <label>批量文本</label>
+                <textarea id="batchUsers" rows="6" placeholder="每行一个：用户名,密码,配额GB(可选)
+alice,123456,20
+bob,abc123
+carol,pass@123,50"></textarea>
+              </div>
+              <button id="batchCreateBtn" class="btn secondary">批量创建</button>
+              <div class="hint batch-hint">格式：每行 <span class="mono">用户名,密码,配额GB(可选)</span>。配额不填则使用默认用户配额。</div>
+              <div class="spacer"></div>
+              <h3>重置密码</h3>
+              <div class="row">
+                <label>目标账号</label>
+                <input id="pwdU" placeholder="例如 root / alice" />
+              </div>
+              <div class="row">
+                <label>新密码</label>
+                <input id="pwdP" type="password" placeholder="输入新密码" />
+              </div>
+              <button id="setPwdBtn" class="btn secondary">设置密码</button>
+              <div class="spacer"></div>
+              <table class="table">
+                <thead><tr><th>账号</th><th>角色</th><th>配额</th><th></th></tr></thead>
+                <tbody id="usersTbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>我的网盘</h2>
+          <div class="hint">下面「目录」是<strong>网盘里的子路径</strong>（相对你账号在服务器上的家目录）。整块硬盘对应哪一盘符，由 Root 的「存储目录」决定，不是在这里填 E:\。</div>
+          <div class="toolbar dir-toolbar">
+            <input id="dir" placeholder="相对路径，如 docs/sub，留空=网盘根（可点浏览或手输）" />
+            <button type="button" id="upDirBtn" class="btn secondary" disabled title="返回上一层文件夹">上级目录</button>
+            <button type="button" id="pickDirBtn" class="btn secondary">浏览…</button>
+            <button id="refreshBtn" class="btn secondary">刷新</button>
+          </div>
+
+          <div class="toolbar">
+            <input id="mkdirName" placeholder="新建文件夹名" />
+            <button id="mkdirBtn" class="btn secondary">新建文件夹</button>
+          </div>
+
+          <div class="hint" id="uploadTargetHint"></div>
+          <div class="toolbar upload-toolbar">
+            <div class="upload-col">
+              <label class="upload-label">选择文件（可多选）</label>
+              <input id="filesPicker" type="file" multiple />
+            </div>
+            <div class="upload-col">
+              <label class="upload-label">选择文件夹（整棵上传）</label>
+              <input id="folderPicker" type="file" webkitdirectory multiple />
+            </div>
+            <button id="uploadBtn" class="btn primary">上传</button>
+          </div>
+
+          <div id="fileErr" class="error hidden"></div>
+          <table class="table">
+            <thead><tr><th>名称</th><th>类型</th><th>大小</th><th>修改时间</th><th></th></tr></thead>
+            <tbody id="filesTbody"></tbody>
+          </table>
+        </section>
+
+        <section class="card">
+          <h2>账号安全</h2>
+          <div class="row">
+            <label>当前密码</label>
+            <input id="selfOldPwd" type="password" placeholder="输入当前密码" autocomplete="current-password" />
+          </div>
+          <div class="row">
+            <label>新密码</label>
+            <input id="selfNewPwd" type="password" placeholder="至少 4 位" autocomplete="new-password" />
+          </div>
+          <div class="row">
+            <button id="selfChangePwdBtn" class="btn secondary">修改我的密码</button>
+          </div>
+          <div id="selfPwdMsg" class="hint"></div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <!-- 服务器网盘目录点选（无法用网页打开本机资源管理器路径） -->
+  <div id="dirPickerModal" class="modal hidden" aria-hidden="true">
+    <div class="modal-backdrop" id="dirPickerBackdrop"></div>
+    <div class="modal-card card" role="dialog" aria-labelledby="dirPickerTitle">
+      <h3 id="dirPickerTitle">选择服务器上的目录</h3>
+      <p class="hint">此处显示的是你账号在服务器上的文件夹；双击进入，「使用此目录」写入上方路径。</p>
+      <div id="dirPickerCrumb" class="mono dir-picker-crumb"></div>
+      <div class="toolbar">
+        <button type="button" id="dirPickerUp" class="btn secondary">上级</button>
+        <button type="button" id="dirPickerRefresh" class="btn secondary">刷新</button>
+      </div>
+      <div id="dirPickerList" class="dir-picker-list"></div>
+      <p id="dirPickerEmpty" class="hint hidden">当前层没有子文件夹；可直接点「使用此目录」作为上传/列表路径。</p>
+      <div class="toolbar modal-actions">
+        <button type="button" id="dirPickerCancel" class="btn secondary">取消</button>
+        <button type="button" id="dirPickerOk" class="btn primary">使用此目录</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
+
