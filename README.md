@@ -37,9 +37,9 @@ NasDemoForTeacher/<br>
 
 ## 实现
 <img width="622" height="251" alt="image" src="https://github.com/user-attachments/assets/5dc9e0a7-c44c-4062-bf86-11e9fdf43072" /><br>
-- 出现该界面后表示程序正常进行
+- 出现该界面后表示程序正常进行<br>
 <img width="592" height="582" alt="image" src="https://github.com/user-attachments/assets/a6471dec-53d1-46b1-a05c-8b7141a86a6a" /><br>
-- 在输入账号密码后可以看见该用户的对应数据,并且可以进行增删改查的操作;
+- 在输入账号密码后可以看见该用户的对应数据,并且可以进行增删改查的操作<br>
 <img width="543" height="167" alt="image" src="https://github.com/user-attachments/assets/940a9a43-48cd-4ca3-b014-5ed0c9f82fbf" /><br>
-- 在本地可见用户全部数据
+- 在本地可见用户全部数据<br>
 
