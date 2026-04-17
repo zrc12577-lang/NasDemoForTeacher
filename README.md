@@ -43,3 +43,9 @@ NasDemoForTeacher/<br>
 <img width="543" height="167" alt="image" src="https://github.com/user-attachments/assets/940a9a43-48cd-4ca3-b014-5ed0c9f82fbf" /><br>
 - 在本地可见用户全部数据<br>
 
+## 在上传前的优化:
+<h3>优化客户端登录逻辑</h3>
+
+
+
+
