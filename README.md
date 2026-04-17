@@ -35,6 +35,11 @@ NasDemoForTeacher/<br>
 ├── pom.xml                     # Maven 依赖配置<br>
 └── README.md<br>
 
+# 端口设置:
+- src/main/resources/application.properties
+- 默认18080
+- 自己改;
+
 ## 实现
 <img width="622" height="251" alt="image" src="https://github.com/user-attachments/assets/5dc9e0a7-c44c-4062-bf86-11e9fdf43072" /><br>
 - 出现该界面后表示程序正常进行<br>
